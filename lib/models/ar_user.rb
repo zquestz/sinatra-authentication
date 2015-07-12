@@ -43,7 +43,7 @@ class ArUser < ActiveRecord::Base
   end
 
   def site_admin?
-    self.id == 1 || self.class.where(:permission_level => -1).first
+    self.id == 1
   end
 
   def to_ary

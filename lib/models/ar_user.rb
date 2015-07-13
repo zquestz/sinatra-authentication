@@ -1,4 +1,4 @@
-if ENV['SETUP_USERS'] && !(ActiveRecord::Base.connection.table_exists?("ar_users") rescue true)
+unless (ActiveRecord::Base.connection.table_exists?("ar_users") rescue true)
   class CreateArUsers < ActiveRecord::Migration
     def self.up
       create_table :ar_users do |t|

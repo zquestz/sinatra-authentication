@@ -32,7 +32,7 @@ module ArAdapter
     end
 
     def delete(pk)
-      user = ArUser.first(pk).first
+      user = ArUser.find(pk)
       user.destroy
       user.destroyed?
     end

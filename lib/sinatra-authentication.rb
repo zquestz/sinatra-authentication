@@ -134,7 +134,7 @@ module Sinatra
           redirect '/'
         else
           if defined? flash
-            flash[:error] = "Whoops, looks like there were some problems with your updates: #{user.errors}."
+            flash[:error] = "Error: #{user.errors}."
           end
           redirect "/users/#{user.id}/edit?" + hash_to_query_string(user_attributes)
         end

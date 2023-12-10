@@ -153,6 +153,15 @@ module Sinatra
             flash[:error] = "Deletion failed."
           end
         end
+
+        # User is deleting themselves, so they should be logged out
+        if current_user.id.to_s == params[:id]
+          session[:user] = nil
+          if defined? flash
+            flash[:notice] = "Deletion successful."
+          end
+        end
+
         redirect '/'
       end
 

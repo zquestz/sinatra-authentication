@@ -144,6 +144,20 @@ module Sinatra
         login_required
         redirect "/users" unless current_user.admin? || current_user.id.to_s == params[:id]
 
+        # Don't allow logged in admins to hang themselves.
+        if current_user.admin? && current_user.id.to_s == params[:id]
+          if defined? flash
+            flash[:notice] = "Can't delete logged in admin."
+          end
+        end
+
+        # Don't allow site admin to be deleted.
+        if params[:id] == '1'
+          if defined? flash
+            flash[:notice] = "Can't delete the site admin."
+          end
+        end
+
         if User.delete(params[:id])
           if defined? flash
             flash[:notice] = "User deleted."

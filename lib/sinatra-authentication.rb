@@ -149,6 +149,9 @@ module Sinatra
           if defined? flash
             flash[:notice] = "Can't delete logged in admin."
           end
+
+          redirect '/'
+          return
         end
 
         # Don't allow site admin to be deleted.
@@ -156,6 +159,9 @@ module Sinatra
           if defined? flash
             flash[:notice] = "Can't delete the site admin."
           end
+
+          redirect '/'
+          return
         end
 
         if User.delete(params[:id])

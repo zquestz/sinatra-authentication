@@ -17,10 +17,11 @@ module Sinatra
 
       app.get '/users/?' do
         login_required
-        redirect "/" unless current_user.admin?
+        redirect_to_location_or_default unless current_user.admin?
 
         @users = User.all
         if @users != []
+          store_location
           send settings.template_engine, get_view_as_string("index.#{settings.template_engine}"), :layout => use_layout?
         else
           redirect '/signup'
@@ -31,8 +32,11 @@ module Sinatra
         login_required
 
         if params[:id].to_i != current_user.id and !current_user.admin?
-          redirect "/"
+          redirect_to_location_or_default
         end
+
+        store_location
+
         @user = User.get(:id => params[:id])
         send settings.template_engine,  get_view_as_string("show.#{settings.template_engine}"), :layout => use_layout?
       end
@@ -48,7 +52,7 @@ module Sinatra
 
       app.get '/login/?' do
         if logged_in?
-          redirect '/'
+          redirect_to_location_or_default
         else
           send settings.template_engine, get_view_as_string("login.#{settings.template_engine}"), :layout => use_layout?
         end
@@ -79,6 +83,7 @@ module Sinatra
 
       app.get '/logout/?' do
         session[:user] = nil
+        session[:location] = nil
         if defined? flash
           flash[:notice] = "Logout successful."
         end
@@ -87,7 +92,7 @@ module Sinatra
 
       app.get '/signup/?' do
         if logged_in?
-          redirect '/'
+          redirect_to_location_or_default
         else
           send settings.template_engine, get_view_as_string("signup.#{settings.template_engine}"), :layout => use_layout?
         end
@@ -111,14 +116,17 @@ module Sinatra
 
       app.get '/users/:id/edit/?' do
         login_required
-        redirect "/users" unless current_user.admin? || current_user.id.to_s == params[:id]
+        redirect_to_location_or_default unless current_user.admin? || current_user.id.to_s == params[:id]
+
+        store_location
+
         @user = User.get(:id => params[:id])
         send settings.template_engine, get_view_as_string("edit.#{settings.template_engine}"), :layout => use_layout?
       end
 
       app.post '/users/:id/edit/?' do
         login_required
-        redirect "/users" unless current_user.admin? || current_user.id.to_s == params[:id]
+        redirect_to_location_or_default unless current_user.admin? || current_user.id.to_s == params[:id]
 
         user = User.get(:id => params[:id])
         user_attributes = params[:user]
@@ -131,7 +139,7 @@ module Sinatra
           if defined? flash
             flash[:notice] = 'Account updated.'
           end
-          redirect '/'
+          redirect_to_location_or_default
         else
           if defined? flash
             flash[:error] = "Error: #{user.errors}."
@@ -142,7 +150,7 @@ module Sinatra
 
       app.get '/users/:id/delete/?' do
         login_required
-        redirect "/users" unless current_user.admin? || current_user.id.to_s == params[:id]
+        redirect_to_location_or_default unless current_user.admin? || current_user.id.to_s == params[:id]
 
         # Don't allow logged in admins to hang themselves.
         if current_user.admin? && current_user.id.to_s == params[:id]
@@ -150,7 +158,7 @@ module Sinatra
             flash[:notice] = "Can't delete logged in admin."
           end
 
-          redirect '/'
+          redirect_to_location_or_default
           return
         end
 
@@ -160,7 +168,7 @@ module Sinatra
             flash[:notice] = "Can't delete the site admin."
           end
 
-          redirect '/'
+          redirect_to_location_or_default
           return
         end
 
@@ -182,7 +190,7 @@ module Sinatra
           end
         end
 
-        redirect '/'
+        redirect_to_location_or_default
       end
 
 
@@ -221,6 +229,18 @@ module Sinatra
   end
 
   module Helpers
+    def store_location
+      session[:location] = request.fullpath
+    end
+
+    def redirect_to_location_or_default(default_redirect = "/")
+      if session[:location].present?
+        redirect session[:location]
+      else
+        redirect default_redirect
+      end
+    end
+
     def hash_to_query_string(hash)
       hash.collect {|k,v| "#{k}=#{v}"}.join('&')
     end

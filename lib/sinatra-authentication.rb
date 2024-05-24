@@ -279,7 +279,11 @@ module Sinatra
     end
 
     def logged_in?
-      !!(session[:user] && session[:salt])
+      if !!session[:user] && User.get(:id => session[:user])&.salt == session[:salt]
+        true
+      else
+        false
+      end
     end
 
     def use_layout?

@@ -61,6 +61,7 @@ module Sinatra
       app.post '/login/?' do
         if user = User.authenticate(params[:email], params[:password])
           session[:user] = user.id
+          session[:salt] = user.salt
 
           if defined? flash
             flash[:notice] = "Login successful."
@@ -83,6 +84,7 @@ module Sinatra
 
       app.get '/logout/?' do
         session[:user] = nil
+        session[:salt] = nil
         session[:location] = nil
         if defined? flash
           flash[:notice] = "Logout successful."
@@ -102,6 +104,7 @@ module Sinatra
         @user = User.set(params[:user])
         if @user.valid && @user.id
           session[:user] = @user.id
+          session[:salt] = @user.salt
           if defined? flash
             flash[:notice] = "Account created."
           end
@@ -185,6 +188,7 @@ module Sinatra
         # User is deleting themselves, so they should be logged out
         if current_user.id.to_s == params[:id]
           session[:user] = nil
+          session[:salt] = nil
           if defined? flash
             flash[:notice] = "Deletion successful."
           end
@@ -208,9 +212,11 @@ module Sinatra
                 user.update :fb_uid => fb[:user]
               end
               session[:user] = user.id
+              sessuib[:salt] = user.salt
             else
               user = User.set!(:fb_uid => fb[:user])
               session[:user] = user.id
+              session[:salt] = user.salt
             end
           end
           redirect '/'
@@ -260,14 +266,19 @@ module Sinatra
     def current_user
       @user_cache ||= {}
       if logged_in?
-        @user_cache[session[:user]] ||= User.get(:id => session[:user]) || GuestUser.new
+        cache_key = if session[:user] && session[:salt]
+          "#{session[:user]}:#{session[:salt]}"
+        else
+          nil
+        end
+        @user_cache[cache_key] ||= User.get(:id => session[:user], :salt => session[:salt]) || GuestUser.new
       else
         GuestUser.new
       end
     end
 
     def logged_in?
-      !!session[:user]
+      !!(session[:user] && session[:salt])
     end
 
     def use_layout?

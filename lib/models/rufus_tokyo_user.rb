@@ -18,7 +18,7 @@ class TcUser
   #and thus it knows what setter methods to call.
   #I would write a class method that allows you to declare attributes like
   #attribute :salt, with an optional block (which gets passed a hash of attributes)
-  #if a block isn't defined, it looks in the class for a salt=(attributes) function, calls it and marges the
+  #if a block isn't defined, it looks in the class for a salt=(attributes) function, calls it and merges the
   #result into the hash going into the database, like 'attributes.merge{"salt" => result}'
   #so my 'set' method or whatever I choose to call it, has to somehow look through each
   #declared attribute, call the method associated with it, and merge the result into the hash going

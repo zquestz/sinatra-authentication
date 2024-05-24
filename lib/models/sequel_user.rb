@@ -33,7 +33,7 @@ class SequelUser < Sequel::Model
 
   def password=(pass)
     @password = pass
-    self.salt = User.random_string(10) if !self.salt
+    self.salt = User.random_string(10)
     self.hashed_password = User.encrypt(@password, self.salt)
   end
 

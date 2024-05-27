@@ -256,6 +256,9 @@ module Sinatra
       #not as efficient as checking the session. but this inits the fb_user if they are logged in
       user = current_user
       if user && user.class != GuestUser
+        cache_control :no_cache, :no_store, :must_revalidate
+        headers 'Pragma' => 'no-cache', 'Expires' => '0'
+
         return true
       else
         session[:return_to] = request.fullpath

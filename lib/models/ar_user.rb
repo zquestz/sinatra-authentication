@@ -29,8 +29,8 @@ class ArUser < ActiveRecord::Base
   validates_format_of :email, :with => /(\A(\s*)\Z)|(\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z)/i
   validates_uniqueness_of :email
 
-  validates :password, :presence => true, :confirmation => true, :length => {:within => 6..40}, :on => :create
-  validates :password, :allow_blank => true, :confirmation => true, :length => {:within => 6..40}, :on => :update
+  validates :password, :presence => true, :confirmation => true, :length => {:within => 8..40}, :on => :create
+  validates :password, :allow_blank => true, :confirmation => true, :length => {:within => 8..40}, :on => :update
 
   def password=(pass)
     @password = pass

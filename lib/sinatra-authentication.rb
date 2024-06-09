@@ -142,7 +142,7 @@ module Sinatra
           if defined? flash
             flash[:notice] = 'Account updated.'
           end
-          session[:salt] = user.salt
+          session[:salt] = user.salt if current_user.id == user.id
           redirect_to_location_or_default
         else
           if defined? flash

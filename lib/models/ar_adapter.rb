@@ -44,9 +44,7 @@ module ArAdapter
     end
 
     def errors
-      @instance.errors.collect do |k,v|
-        "#{k} #{v}"
-      end.join(', ')
+      @instance.errors.full_messages.join(', ')
     end
 
     def update(attributes)
